@@ -11,7 +11,7 @@ Use the following environment variables:
 | Variable   | Default | Description             |
 |------------|---------|-------------------------|
 | PORT       | 8080    | Network port to use.    |
-| DIR        | bin     | The asset directory to serve. |
+| BIN        | bin     | The asset directory to serve. |
 | CACHE      | cache   | The image cache directory. |
 | FORCE_PASS |         | The force password.     |
 
