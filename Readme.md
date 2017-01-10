@@ -15,6 +15,10 @@ Use the following environment variables:
 | CACHE      | cache   | The image cache directory. |
 | FORCE_PASS |         | The force password.     |
 
+### Requirements
+
+You will need **ImageMagick**. Optionally you can remove the ImageMagick subclass and install GraphicsMagick.
+
 ## Supported Features
 
 Features are used by adding a query string parameter to the end of the request url. Such as `/my-file.jpg?image_width=128`.
