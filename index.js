@@ -2,6 +2,7 @@ var path    = require("path");
 var fs      = require("fs");
 var express = require("express");
 var gm      = require("gm").subClass({imageMagick: true});
+var mkdirp  = require("mkdirp");
 
 var app = express();
 var dir = process.env.BIN || path.join(__dirname, "bin");
@@ -10,7 +11,7 @@ var pass = process.env.FORCE_PASS || undefined;
 
 app.get("/*", (req, res, next)=> {
   var size = req.query.image_width;
-  var force = req.query.hasOwnProperty('force') && req.query.force == pass;
+  var force = req.query.force == pass;
   if (!size || !isValidSize(size)) {
     return next();
   }
@@ -36,27 +37,44 @@ app.get("/*", (req, res, next)=> {
   });
 
   function doit() {
-    gm(filePath)
-    .resize(size)
-    .stream(function (err, stdout, stderr) {
+    mkdirp(path.dirname(cachedPath), (err)=> {
       if (err) {
         console.error(err);
         next();
         return;
       }
-      var writeStream = fs.createWriteStream(cachedPath);
-      stdout.pipe(writeStream);
-      stdout.pipe(res);
-      stderr.pipe(process.stderr);
+      gm(filePath)
+      .resize(size)
+      .stream(function (err, stdout, stderr) {
+        if (err) {
+          console.error(err);
+          next();
+          return;
+        }
+        var writeStream = fs.createWriteStream(cachedPath);
+        writeStream.on("error", console.error);
+        stdout.pipe(writeStream);
+        stdout.pipe(res);
+        stderr.pipe(process.stderr);
+      });
     });
   }
 });
 
 // Allow sizes in power of 2 up to 4k
 function isValidSize(size) {
-  return !(size & (size - 1)) && size <= 4096;
+  var initial = 2
+  while (initial < 4096) {
+    if (size == initial) return true
+    initial *= 2
+  }
+  return false
 }
 
-app.use(express.static(dir))
+app.use(function (err, req, res, next) {
+    console.error(err.stack);
+    next();
+});
 
+app.use(express.static(dir));
 app.listen(process.env.PORT || 8080);
