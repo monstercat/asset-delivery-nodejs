@@ -11,7 +11,7 @@ var pass = process.env.FORCE_PASS || undefined;
 
 app.get("/*", (req, res, next)=> {
   var size = req.query.image_width;
-  var force = req.query.force == pass;
+  var force = req.query.hasOwnProperty('force') && req.query.force == pass;
   if (!size || !isValidSize(size)) {
     return next();
   }
@@ -63,12 +63,7 @@ app.get("/*", (req, res, next)=> {
 
 // Allow sizes in power of 2 up to 4k
 function isValidSize(size) {
-  var initial = 2
-  while (initial < 4096) {
-    if (size == initial) return true
-    initial *= 2
-  }
-  return false
+  return !(size & (size - 1)) && size <= 4096;
 }
 
 app.use(function (err, req, res, next) {
