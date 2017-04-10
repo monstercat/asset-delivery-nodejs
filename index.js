@@ -1,25 +1,27 @@
-var path    = require("path");
-var fs      = require("fs");
-var express = require("express");
-var gm      = require("gm").subClass({imageMagick: true});
-var mkdirp  = require("mkdirp");
+const path    = require('path');
+const fs      = require('fs');
+const express = require('express');
+const gm      = require('gm').subClass({imageMagick: true});
+const mkdirp  = require('mkdirp');
+const qs      = require('querystring');
 
-var app = express();
-var dir = process.env.BIN || path.join(__dirname, "bin");
-var cache = process.env.CACHE || path.join(__dirname, "cache");
-var pass = process.env.FORCE_PASS || undefined;
+const app = express();
+const dir = process.env.BIN || path.join(__dirname, 'bin');
+const cache = process.env.CACHE || path.join(__dirname, 'cache');
+const pass = process.env.FORCE_PASS || undefined;
 
-app.get("/*", (req, res, next)=> {
-  var size = req.query.image_width;
-  var force = req.query.hasOwnProperty('force') && req.query.force == pass;
+app.get('/*', (req, res, next)=> {
+  let size = req.query.image_width;
+  let force = req.query.hasOwnProperty('force') && req.query.force == pass;
   if (!size || !isValidSize(size)) {
     return next();
   }
 
-  var filePath = path.join(dir, req.path);
-  var cachedPath = path.join(cache, path.join(
-      path.dirname(req.path), 
-      size + "_" + path.basename(req.path)));
+  let xpath = decodeURI(req.path);
+  let filePath = path.join(dir, xpath);
+  let cachedPath = path.join(cache, path.join(
+      path.dirname(xpath), 
+      size + "_" + path.basename(xpath)));
 
   fs.access(filePath, fs.constants.R_OK, (err)=> {
     if (err) {
