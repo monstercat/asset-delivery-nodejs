@@ -3,7 +3,6 @@ const fs      = require('fs');
 const express = require('express');
 const gm      = require('gm').subClass({imageMagick: true});
 const mkdirp  = require('mkdirp');
-const qs      = require('querystring');
 
 const app = express();
 const dir = process.env.BIN || path.join(__dirname, 'bin');
