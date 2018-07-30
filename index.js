@@ -8,6 +8,7 @@ const app = express();
 const dir = process.env.BIN || path.join(__dirname, 'bin');
 const cache = process.env.CACHE || path.join(__dirname, 'cache');
 const pass = process.env.FORCE_PASS || undefined;
+const maxAge = process.env.MAX_AGE || undefined;
 
 app.get('/*', (req, res, next)=> {
   let size = req.query.image_width;
@@ -72,5 +73,9 @@ app.use(function (err, req, res, next) {
     next();
 });
 
-app.use(express.static(dir));
+const opts = {};
+if (maxAge) {
+  opts.maxage = maxAge;
+}
+app.use(express.static(dir, opts));
 app.listen(process.env.PORT || 8080);
